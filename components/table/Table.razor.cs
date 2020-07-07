@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Components;
+using OneOf;
 
 namespace AntDesign
 {
@@ -16,8 +17,9 @@ namespace AntDesign
             get => _dataSource;
             set
             {
-                _total = value.Count();
-                _dataSource = value;
+                _total = value?.Count() ?? 0;
+                _dataSource = value ?? Enumerable.Empty<TItem>();
+                StateHasChanged();
             }
         }
 
@@ -34,6 +36,18 @@ namespace AntDesign
         public bool Loading { get; set; }
 
         [Parameter]
+        public OneOf<string, RenderFragment> Title { get; set; }
+
+        [Parameter]
+        public OneOf<string, RenderFragment> Footer { get; set; }
+
+        [Parameter]
+        public TableSize Size { get; set; }
+
+        [Parameter]
+        public bool Bordered { get; set; } = false;
+
+        [Parameter]
         public string ScrollX { get; set; }
 
         [Parameter]
@@ -45,6 +59,7 @@ namespace AntDesign
         public ColumnContext ColumnContext { get; set; } = new ColumnContext();
 
         private IEnumerable<TItem> _dataSource;
+
         private ISelectionColumn _headerSelection;
 
         ISelectionColumn ITable.HeaderSelection
@@ -60,7 +75,7 @@ namespace AntDesign
                 var list = new List<TItem>();
                 foreach (var index in checkedIndex)
                 {
-                    list.Add(DataSource.ElementAt(index));
+                    list.Add(_dataSource.ElementAt(index));
                 }
 
                 SelectedRowsChanged.InvokeAsync(list);
@@ -77,6 +92,9 @@ namespace AntDesign
             string prefixCls = "ant-table";
             ClassMapper.Add(prefixCls)
                 .If($"{prefixCls}-fixed-header", () => ScrollY != null)
+                .If($"{prefixCls}-bordered", () => Bordered)
+                .If($"{prefixCls}-small", () => Size == TableSize.Small)
+                .If($"{prefixCls}-middle", () => Size == TableSize.Middle)
                 //.Add( "ant-table ant-table-ping-left ant-table-ping-right ")
                 .If($"{prefixCls}-fixed-column {prefixCls}-scroll-horizontal", () => ColumnContext.Columns.Any(x => x.Fixed.IsIn("left", "right")))
                 .If($"{prefixCls}-has-fix-left", () => ColumnContext.Columns.Any(x => x.Fixed == "left"))
@@ -89,10 +107,15 @@ namespace AntDesign
             base.OnInitialized();
 
             SetClass();
+            SetPaginationClass();
         }
 
         private void ChangeSelection(int[] indexes)
         {
+            if(this._headerSelection == null)
+            {
+                return;
+            }
             if (indexes == null || !indexes.Any())
             {
                 this._headerSelection.RowSelections.ForEach(x => x.Check(false));

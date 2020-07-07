@@ -32,37 +32,54 @@
     <FormItem Label="Switch">
         <Switch @bind-Value="@context.Switch" />
     </FormItem>
+    <FormItem Label="Radio">
+        <RadioGroup @bind-Value="@context.Radio">
+            <Radio RadioButton Value="@("Hangzhou")">Hangzhou</Radio>
+            <Radio RadioButton Value="@("Shanghai")">Shanghai</Radio>
+            <Radio RadioButton Value="@("Beijing")">Beijing</Radio>
+            <Radio RadioButton Value="@("Chengdu")">Chengdu</Radio>
+        </RadioGroup>
+    </FormItem>
     <FormItem WrapperCol="new ColLayoutParam{ Offset = 8, Span = 16 }">
         <Button HtmlType="submit">
             Button
         </Button>
     </FormItem>
 </Form>
+
+@model.Switch
 @code
 {
     public class Model
     {
         public string Size { get; set; } = AntSizeLDSType.Small;
-        public string Input { get; set; }
-        public string InputArea { get; set; }
-        public string Cascader { get; set; }
-        public DateTime DatePicker { get; set; }
-        public double Number { get; set; }
-        public bool Switch { get; set; }
+        public string Input { get; set; } = "input";
+        public string InputArea { get; set; } = "inputArea";
+        public string Cascader { get; set; } = "11";
+        public DateTime DatePicker { get; set; } = DateTime.Now;
+        public double Number { get; set; } = 1;
+        public bool Switch { get; set; } = true;
+        public string Radio { get; set; } = "Beijing";
     }
 
     private Model model = new Model();
 
     private List<CascaderNode> districts = new List<CascaderNode>
-    {
+{
         new CascaderNode()
         {
             Value = "1",
-            Label = "zhejiang",
+            Label = "浙江",
             Children = new []
-            {
-                new CascaderNode {Value = "11", Label = "hangzhou"},
+        {
+                new CascaderNode {Value = "11", Label = "杭州"},
+                new CascaderNode {Value = "12", Label = "温州"},
             }
+        },
+        new CascaderNode()
+        {
+            Value = "2",
+            Label = "上海",
         }
     };
 
@@ -75,4 +92,5 @@
     {
         Console.WriteLine($"Failed:{JsonSerializer.Serialize(model)}");
     }
+
 }

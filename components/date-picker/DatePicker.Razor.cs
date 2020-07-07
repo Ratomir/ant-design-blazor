@@ -5,6 +5,16 @@ namespace AntDesign
 {
     public partial class DatePicker : DatePickerBase<DateTime>
     {
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            if (Value != null && Value != DateTime.MinValue)
+            {
+                ChangeValue(Value, 0);
+            }
+        }
+
+
         protected void OnInput(ChangeEventArgs args, int index = 0)
         {
             if (args == null)
@@ -63,6 +73,14 @@ namespace AntDesign
             {
                 Close();
             }
+        }
+        
+        public override void ClearValue(int index = 0)
+        {
+            _isSetPicker = false;
+            _pickerStatus[index]._hadSelectValue = false;
+            UpdateCurrentValueAsString();
+            Close();
         }
     }
 }

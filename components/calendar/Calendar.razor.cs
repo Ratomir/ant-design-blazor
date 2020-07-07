@@ -10,6 +10,7 @@ namespace AntDesign
     public partial class Calendar : AntDomComponentBase, IDatePicker
     {
         DateTime IDatePicker.CurrentDate { get; set; } = DateTime.Now;
+        DateTime? IDatePicker.HoverDateTime { get; set; }
 
         [Parameter]
         public DateTime Value { get; set; } = DateTime.Now;
@@ -66,7 +67,7 @@ namespace AntDesign
         public Func<DateTime, bool> DisabledDate { get; set; } = null;
 
         protected string _picker;
-        protected readonly DateTime[] _pickerValues = new DateTime[] { DateTime.Now, DateTime.Now };
+        protected readonly DateTime[] PickerValues = new DateTime[] { DateTime.Now, DateTime.Now };
         protected Stack<string> _prePickerStack = new Stack<string>();
 
         public readonly string PrefixCls = "ant-picker-calendar";
@@ -139,7 +140,7 @@ namespace AntDesign
             _prePickerStack.Push(_picker);
             _picker = mode;
 
-            OnPanelChange?.Invoke(_pickerValues[index], _picker);
+            OnPanelChange?.Invoke(PickerValues[index], _picker);
 
             StateHasChanged();
         }
@@ -151,6 +152,16 @@ namespace AntDesign
 
         public void Close()
         {
+        }
+
+        public int GetOnFocusPickerIndex()
+        {
+            return 0;
+        }
+
+        void IDatePicker.InvokeStateHasChanged()
+        {
+            StateHasChanged();
         }
 
         public string Picker { get { return _picker; } }
